@@ -416,3 +416,18 @@ func TestDemoSeeds(t *testing.T) {
 		t.Fatalf("demo dashboard = running %v, week %v", d["running"], d["week_s"])
 	}
 }
+
+func TestDirectAppSource(t *testing.T) {
+	a := newApp(t, nil)
+	r := a.ok(a.alice, "POST", "/api/v1/timer/start", map[string]any{"app": "guitar", "source": "guitar", "app_ref": "tab:7", "app_label": "Blackbird"})
+	run := sub(r, "running")
+	if run["source"] != "guitar" || run["app_ref"] != "tab:7" || run["deliver"] != true {
+		t.Fatalf("direct start = %v", run)
+	}
+	a.ok(a.alice, "POST", "/api/v1/timer/stop", nil)
+	// a source that is not the app is ignored
+	r = a.ok(a.alice, "POST", "/api/v1/timer/start", map[string]any{"app": "guitar", "source": "projects", "app_ref": "tab:7"})
+	if sub(r, "running")["source"] != "time" {
+		t.Fatalf("mismatched source taken: %v", sub(r, "running"))
+	}
+}

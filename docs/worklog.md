@@ -17,6 +17,7 @@ Declare in the manifest: `core.Use{App: "time", Scopes: []string{"time:read", "t
 | `POST /api/v1/timer/start` | `{"app_ref": "tab:42", "app_label": "Wonderwall", "app_url": "/tab/42", "title"?, "project"?, "deliver"?: true, "switch"?: false}` | `200 {"running": Entry, "stopped": Entry \| null}` or **`409 {"error", "running": Entry}`** when another timer runs and `switch` is not set |
 | `POST /api/v1/timer/stop` | `{"only_if"?: <entry id>, "note"?: "…"}` | `{"running": null, "stopped": Entry \| null}`; `409` if `only_if` is not the one running |
 
+- **Direct connection** (a `ptm_` token instead of a Core link): Time cannot tell which app calls, so send `"app": "<your slug>"` and `"source": "<your slug>"` with the start (and with `POST /entries`) — without `app` the item fields are dropped, without `source` the timer shows as started in Pocket Time. Through a Core link both are set for you.
 - `app` and `source` of a timer an app starts are always that app's slug; `app_ref` is the app's own id for the item (`tab:42`, `issue:ATH-12`, `deck:3`), `app_url` a path in the app (Time prefixes the app's public URL).
 - **One timer at a time.** On `409`, show the running one (`running.app`/`running.source` say where it was started; `entryName` = `title` or `app_label`) and offer "Stop it and start this" → the same start with `"switch": true`. That stops the running one at the new start.
 - Send `only_if` with the id you started, so pressing stop in your app never stops a different timer started meanwhile.

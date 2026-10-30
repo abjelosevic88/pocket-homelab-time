@@ -35,6 +35,7 @@ type entryInput struct {
 	AppURL     string `json:"app_url"`
 	Deliver    *bool  `json:"deliver"`
 	ExternalID string `json:"external_id"`
+	Source     string `json:"source"` // a Pocket app on a direct (token) connection: its own slug, = app
 	Switch     bool   `json:"switch"`
 	OnlyIf     int64  `json:"only_if"`
 }
@@ -175,6 +176,7 @@ func (s *Server) handleStartTimer(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadRequest, m)
 		return
 	}
+	directSource(&in, &e)
 	if in.Billable == nil {
 		e.Billable = s.projectBillable(ctx, uid, e.ProjectID, st)
 	}
@@ -249,6 +251,18 @@ func (s *Server) handleStopTimer(w http.ResponseWriter, r *http.Request) {
 	}
 	s.timerStopped(ctx, uid, out)
 	writeJSON(w, http.StatusOK, map[string]any{"running": nil, "stopped": forLink(ctx, []store.Entry{*out})[0]})
+}
+
+// directSource lets a Pocket app on a direct token connection say the timer
+// (or entry) is its own: "source" must name the same app as "app". Through a
+// Core link the source is always the acting app.
+func directSource(in *entryInput, e *store.Entry) {
+	if in.Source == "" || in.Source != e.App || e.App == "" {
+		return
+	}
+	if _, ok := appBySlug(e.App); ok {
+		e.Source = e.App
+	}
 }
 
 // timerStopped announces a stopped timer and sends it to its app.
@@ -468,6 +482,7 @@ func (s *Server) handleCreateEntry(w http.ResponseWriter, r *http.Request) {
 		writeErr(w, http.StatusBadRequest, m)
 		return
 	}
+	directSource(&in, &e)
 	if m := finishTimes(&in, nil, &e); m != "" {
 		writeErr(w, http.StatusBadRequest, m)
 		return
