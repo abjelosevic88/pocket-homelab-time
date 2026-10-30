@@ -1,0 +1,23 @@
+[Unit]
+Description=Pocket Time — one place for all your timers
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=pocket-time
+Group=pocket-time
+ExecStart=/usr/local/bin/pocket-time
+Environment=DATA_DIR=/var/lib/pocket-time
+Environment=PORT=8080
+Environment=BASE_URL=https://time.example.com
+Environment=SECURE_COOKIES=true
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/pocket-time
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

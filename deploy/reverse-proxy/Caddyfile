@@ -1,0 +1,5 @@
+# Pocket Time behind Caddy. Homepage widgets and linked apps send their own
+# bearer token to /api/*.
+time.example.com {
+	reverse_proxy pocket-time:8080
+}
