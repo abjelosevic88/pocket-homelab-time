@@ -2,6 +2,7 @@
 //
 //   DATA_DIR=/tmp/time-demo DEMO_DATA=true ADMIN_EMAIL=demo@example.com ADMIN_PASSWORD=demodemo1 ADMIN_NAME=Maya PORT=18306 ./pocket-time
 //   CDP=http://127.0.0.1:19271 BASE=http://127.0.0.1:18306 node scripts/screenshots.mjs   # any Chrome with remote debugging
+//   INTER=…/inter-latin-wght-normal.woff2 … node scripts/screenshots.mjs                    # when that Chrome has no Inter
 //   SHOTS=0 … node scripts/screenshots.mjs                                                  # checks only
 // playwright-core comes from web/node_modules, or set PW_FROM to a package.json next to an install of it.
 import { createRequire } from 'node:module'
@@ -23,6 +24,14 @@ async function session({ phone = false, dark = false } = {}) {
     deviceScaleFactor: phone ? 3 : 2, isMobile: phone, hasTouch: phone, colorScheme: dark ? 'dark' : 'light',
     userAgent: phone ? 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0 Mobile/15E148 Safari/604.1' : undefined,
   })
+  // INTER=<path to an Inter .woff2>: for a browser that has no Inter installed (the app's font stack starts with it)
+  if (process.env.INTER) {
+    const b64 = (await import('node:fs')).readFileSync(process.env.INTER).toString('base64')
+    await ctx.addInitScript(css => {
+      const add = () => { const s = document.createElement('style'); s.textContent = css; document.head.appendChild(s) }
+      if (document.head) add(); else document.addEventListener('DOMContentLoaded', add)
+    }, `@font-face{font-family:"Inter";font-weight:100 900;font-style:normal;src:url(data:font/woff2;base64,${b64}) format("woff2")}`)
+  }
   const page = await ctx.newPage()
   page.on('pageerror', e => errors.push(`pageerror: ${e}`))
   page.on('console', m => { if (m.type() === 'error' && !/Failed to load resource/.test(m.text())) errors.push(m.text()) })
