@@ -5,7 +5,7 @@ import type { Entry, Settings } from './types'
 export const APPS: Record<string, { name: string; icon: string; color: string; item: string }> = {
   time: { name: 'Pocket Time', icon: 'timer', color: 'var(--accent)', item: '' },
   projects: { name: 'Pocket Projects', icon: 'check-square', color: '#5e6ad2', item: 'issue' },
-  guitar: { name: 'Pocket Guitar', icon: 'music', color: '#b8231f', item: 'song' },
+  guitar: { name: 'Pocket Guitar', icon: 'music', color: '#4338ca', item: 'song' },
   learn: { name: 'Pocket Learn', icon: 'brain', color: '#4263eb', item: 'deck' },
   still: { name: 'Pocket Still', icon: 'lotus', color: '#3f7f6b', item: 'practice' },
   invoicing: { name: 'Pocket Invoicing', icon: 'receipt', color: '#2563eb', item: 'client' },

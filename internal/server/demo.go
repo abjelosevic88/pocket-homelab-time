@@ -25,7 +25,7 @@ func (s *Server) seedDemo(ctx context.Context, owner int64) error {
 		{Name: "Harbor mobile app", Color: "#0f9d77", Client: "Harbor & Co", Billable: true, Rate: 60, GoalMin: 10 * 60},
 		{Name: "Internal & admin", Color: "#8a8f98"},
 		{Name: "Side project", Color: "#c2410c", GoalMin: 4 * 60},
-		{Name: "Guitar", Color: "#b8231f", GoalMin: 3 * 60},
+		{Name: "Guitar", Color: "#4338ca", GoalMin: 3 * 60},
 		{Name: "Learning", Color: "#4263eb", GoalMin: 2 * 60},
 	}
 	for i := range projects {
