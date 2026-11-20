@@ -137,7 +137,7 @@ func (s *Server) handleImportCSV(w http.ResponseWriter, r *http.Request) {
 	}
 	st, _ := s.store.GetSettings(ctx, uid)
 	projects := map[string]*int64{}
-	counts := map[string]int{"entries": 0, "projects": 0, "skipped": 0}
+	counts := map[string]int{"entries": 0, "projects": 0, "skipped": 0, "already": 0}
 	for {
 		row, err := cr.Read()
 		if err == io.EOF {
@@ -204,6 +204,10 @@ func (s *Server) handleImportCSV(w http.ResponseWriter, r *http.Request) {
 		}
 		h := sha1.Sum([]byte(strings.Join(row, "\x1f")))
 		e.ExternalID = "csv:" + hex.EncodeToString(h[:10])
+		if s.store.HasExternal(ctx, uid, e.ExternalID) {
+			counts["already"]++
+			continue
+		}
 		if err := s.store.CreateEntry(ctx, uid, &e); err != nil {
 			counts["skipped"]++
 			continue

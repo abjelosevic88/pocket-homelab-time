@@ -465,3 +465,9 @@ func (s *Store) LongRunning(ctx context.Context, cutoff time.Time) ([]Entry, err
 	}
 	return out, rows.Err()
 }
+
+// HasExternal reports whether the person has an entry with this external id.
+func (s *Store) HasExternal(ctx context.Context, uid int64, externalID string) bool {
+	var id int64
+	return externalID != "" && s.DB.QueryRowContext(ctx, `SELECT id FROM entries WHERE user_id = ? AND external_id = ?`, uid, externalID).Scan(&id) == nil
+}

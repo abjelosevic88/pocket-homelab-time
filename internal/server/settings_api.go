@@ -414,8 +414,9 @@ func (s *Server) handleExportCSV(w http.ResponseWriter, r *http.Request) {
 }
 
 // handleImportJSON merges a Pocket Time export into the caller's own data.
-// Entries keep their identity (external id "import:<original id>"), so
-// importing the same file twice adds nothing; imported time is not sent to
+// It only adds: entries keep their identity (external id "import:<original
+// id>") and one already here is left as it is, so importing the same file
+// twice adds nothing; imported time is not sent to
 // other apps again.
 func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request) {
 	var doc exportDoc
@@ -429,7 +430,7 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request) {
 	}
 	ctx := r.Context()
 	uid := actorID(ctx)
-	counts := map[string]int{"projects": 0, "entries": 0, "skipped": 0}
+	counts := map[string]int{"projects": 0, "entries": 0, "skipped": 0, "already": 0}
 	pids := map[int64]int64{}
 	for _, p := range doc.Projects {
 		old := p.ID
@@ -455,6 +456,12 @@ func (s *Server) handleImportJSON(w http.ResponseWriter, r *http.Request) {
 		e.ID = 0
 		if e.ExternalID == "" {
 			e.ExternalID = fmt.Sprintf("import:%d", old)
+		}
+		if have, err := s.store.GetEntry(ctx, uid, old); (err == nil && have.StartedAt == e.StartedAt) || s.store.HasExternal(ctx, uid, e.ExternalID) {
+			// here already (brought in before, or the person's own entry on
+			// this box): left as it is
+			counts["already"]++
+			continue
 		}
 		if e.ProjectID != nil {
 			if np, ok := pids[*e.ProjectID]; ok {
