@@ -60,6 +60,12 @@ An entry: `id, title, note, project_id, project_name, project_color, tags, billa
 | `time:read` | `GET /timer`, `/dashboard`, `/entries`, `/entries/{id}`, `/projects`, `/report`, `/day/{date}`, `/summary/{date}` — never notes |
 | `time:write` | the reads above (except day/summary), `POST /timer/start`, `POST /timer/stop`, `POST /entries`, `PUT/DELETE /entries/{id}` (only what that app logged) |
 
+| `pocket:search` | `GET /pocket/search?q=&limit=` only — Pocket Search: projects and clients by name (`project:<id>`, `client:<name>`), entries by what they were for, notes and tags (`entry:<id>`); notes are looked in, never shown |
+| `pocket:day` | `GET /pocket/day/{date}[?tz=]` only — Pocket Day: one line per entry (start and end, minutes as reports round them, project · client), a running timer marked `running`, the total and the billable time |
+| `pocket:widget` | `GET /pocket/widget` only — Pocket Hub: the running timer, else today's total; today and this week (with your targets); today's entries, the newest first |
+
+The three `pocket:*` routes answer in the shapes of Pocket Core's capabilities (docs/capabilities.md in pocket-homelab-core) and change nothing; the person signed in to Time can call them too. `time:read` and `time:write` do not open them. There is no `pocket:capture`.
+
 Events: `time.timer_started`, `time.timer_stopped`, `time.entry_logged` — payload `{entry_id, title, project, app, app_ref, source, started_at, ended_at, date, duration_s, minutes, user_email}`.
 
 ## Settings, data and the rest

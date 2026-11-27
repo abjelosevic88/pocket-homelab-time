@@ -80,6 +80,11 @@ func (s *Server) Router() http.Handler {
 			r.Get("/day/{date}", s.handleDay)
 			r.Get("/summary/{date}", s.handleDay)
 
+			// what Pocket Search, Pocket Day and Pocket Hub ask (capabilities.go)
+			r.Get("/pocket/search", core.SearchHandler(s.pocketSearch))
+			r.Get("/pocket/day/{date}", core.DayHandler(s.pocketDay))
+			r.Get("/pocket/widget", core.WidgetHandler(s.pocketWidget))
+
 			// the other Pocket apps
 			r.Get("/apps", s.handleApps)
 			r.Post("/apps/sync", s.handleSyncApps)

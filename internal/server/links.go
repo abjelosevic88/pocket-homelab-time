@@ -38,6 +38,17 @@ var portable = &core.Portable{
 	},
 }
 
+// capabilities is what Pocket Search, Pocket Day and Pocket Hub may ask
+// (docs/capabilities.md in pocket-homelab-core; capabilities.go), each on its
+// one route under /api/v1/pocket. Register adds pocket:search/day/widget.
+// There is no quick line to keep: Time has no way to read "1h30 website
+// fixes" as an entry, and a quick line must never start or stop the timer.
+var capabilities = core.Capabilities{
+	Search: &core.Searchable{What: "Your projects and clients by name, and your time entries by what they were for, notes and tags", Kinds: []string{"project", "client", "entry"}, Bangs: []string{"time", "timer"}},
+	Day:    &core.DayFeed{Label: "Time", One: "entry", Many: "entries", Unit: "min", What: "The time you tracked that day, entry by entry, with its project, and a timer that is still running"},
+	Widget: &core.Widget{Title: "Time", What: "The timer that is running, the time you tracked today and this week, and today's entries"},
+}
+
 type linkRoute struct {
 	methods string
 	path    *regexp.Regexp
@@ -58,7 +69,7 @@ var errLinkScope = errors.New("outside the link's scope")
 
 // linkAllows reports whether a link token with these scopes may make this request.
 func linkAllows(scopes []string, r *http.Request) bool {
-	if portable.LinkAllows(scopes, r) {
+	if portable.LinkAllows(scopes, r) || capabilities.LinkAllows(scopes, r) {
 		return true
 	}
 	for _, lr := range linkRoutes {
